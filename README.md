@@ -1,6 +1,6 @@
 # Colliding Events
 
-[now](https://media0.giphy.com/media/tn8zWeNYA73G0/giphy.gif)
+![now](https://media0.giphy.com/media/tn8zWeNYA73G0/giphy.gif)
 
 ## Assumptions
 
