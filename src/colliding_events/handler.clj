@@ -18,6 +18,7 @@
     (cheshire.generate/write-string gen (str dt))))
 
 (defn time-formatter
+  "Update time-stamp strings to joda.time instances"
   [calendar]
   (letfn [(time-format-event [event] (-> event
                                          (update :start-time coerce-time/from-string)
@@ -41,10 +42,14 @@
 (spec/def ::collisions (spec/coll-of #(spec/valid? ::calendar %)))
 
 (defn collision?
+  "Simple comparison. Could be expanded with time-zone checks, travel-time check.
+   Checking both events is redundant with a sorted events-list"
   [event1 event2 & {:keys [allow-equality?] :or {allow-equality? true}}]
-  (let [comparison (compare (:end-time event1) (:start-time event2))
+  (let [comparison1 (compare (:end-time event1) (:start-time event2))
+        comparison2 (compare (:end-time event2) (:start-time event1))
         collision-fn (if allow-equality? pos? (complement neg?))]
-    (collision-fn comparison)))
+    (or (collision-fn comparison1)
+        (collision-fn comparison2))))
 
 (defn find-collisions
   "Check that we have a valid calendar, find colliding events, return sequence of pairs of events"
@@ -76,22 +81,22 @@
                          time-formatter)]
         {:status 200
          :body (json/generate-string (find-collisions calendar :allow-equality? (Boolean/valueOf allow-equality)))})
-      (catch Exception e
+      (catch Throwable e
         {:status 400
-         :exception (ex-data e)}))))
+         :body e}))))
 
 (defn handle-request-calendar
   [{:keys [body params]}]
-  (println "\n" body "\n")
   (try {:status 200
         :body (-> body
                   :calendar
                   time-formatter
                   (find-collisions :allow-equality? (Boolean/valueOf (:allow-equality params)))
                   json/generate-string)}
-       (catch Exception e
+       (catch Throwable e
+         (println e)
          {:status 400
-          :exception (ex-data e)})))
+          :body (json/generate-string e)})))
 
 (defroutes app-routes
   (GET "/:file-name" {:keys [params]} (handle-local-calendar params))
