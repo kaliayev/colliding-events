@@ -1,0 +1,1 @@
+[{:name "event1", :start-time "2018-10-05T16:15:43.726Z", :end-time "2018-10-05T16:15:54.547Z"} {:name "event2 overlapping with event1", :start-time "2018-10-05T16:15:43.726Z", :end-time "2018-10-05T16:15:54.547Z"} {:name "event3 only overlaps with 1&2 when equality is not allowed", :start-time "2018-10-05T16:15:54.547Z", :end-time "2018-10-05T16:29:16.947Z"}]
